@@ -7,18 +7,26 @@ export default function Appointment() {
     phone: "",
     date: "",
   });
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const today = new Date().toISOString().split("T")[0];
 
   const submitHandler = (e) => {
     e.preventDefault();
-    setSuccess(true);
-    setForm({ name: "", phone: "", date: "" });
+    setLoading(true);
 
-    setTimeout(() => setSuccess(false), 3000);
+    setTimeout(() => {
+      setLoading(false);
+      setSuccess(true);
+      setForm({ name: "", phone: "", date: "" });
+
+      setTimeout(() => setSuccess(false), 3000);
+    }, 2000);
   };
 
   return (
-    <section id="appointment" className="py-24 bg-white">
+    <section id="appointment" className="py-24 bg-white scroll-mt-28">
       {/* Heading */}
       <div className="text-center max-w-xl mx-auto px-6">
         <h2 className="text-3xl md:text-4xl font-semibold text-gray-800">
@@ -35,44 +43,83 @@ export default function Appointment() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         onSubmit={submitHandler}
-        className="max-w-md mx-auto mt-12 bg-emerald-50 rounded-2xl p-8 shadow-sm"
+        className="max-w-md mx-auto mt-12 bg-emerald-50 rounded-2xl p-8 shadow-sm space-y-6"
       >
         {success && (
-          <div className="mb-4 text-center text-emerald-600 font-medium">
+          <div className="text-center text-emerald-600 font-medium">
             ✔ Appointment booked successfully!
           </div>
         )}
 
-        <input
-          className="w-full mb-4 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          placeholder="Full Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-        />
+        {/* Floating Input */}
+        {[
+          { label: "Full Name", value: form.name, key: "name", type: "text" },
+          { label: "Phone Number", value: form.phone, key: "phone", type: "tel" },
+        ].map((field) => (
+          <div key={field.key} className="relative">
+            <input
+              type={field.type}
+              value={field.value}
+              onChange={(e) =>
+                setForm({ ...form, [field.key]: e.target.value })
+              }
+              required
+              className="peer w-full h-12 px-4 pt-4 border border-gray-200 rounded-xl
+                         focus:outline-none focus:ring-2 focus:ring-emerald-500
+                         appearance-none bg-white"
+            />
+            <label
+              className="absolute left-4 top-3 text-gray-500 text-sm
+                         peer-focus:-top-2 peer-focus:text-xs peer-focus:text-emerald-600
+                         peer-valid:-top-2 peer-valid:text-xs
+                         bg-white px-1 transition-all"
+            >
+              {field.label}
+            </label>
+          </div>
+        ))}
 
-        <input
-          className="w-full mb-4 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          placeholder="Phone Number"
-          value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          required
-        />
+        {/* Date Field */}
+        {/* Date Field */}
+<div className="space-y-2">
+  <label className="block text-sm font-medium text-gray-600">
+    Preferred Date
+  </label>
 
-        <input
-          type="date"
-          className="w-full mb-6 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
-          required
-        />
+  <div className="relative">
+    <input
+      type="date"
+      min={today}
+      value={form.date}
+      onChange={(e) => setForm({ ...form, date: e.target.value })}
+      required
+      className="w-full h-12 px-4 pr-12 border border-gray-200 rounded-xl
+                 focus:outline-none focus:ring-2 focus:ring-emerald-500
+                 appearance-none bg-white"
+    />
 
+    
+  </div>
+</div>
+
+
+        {/* Submit Button */}
         <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          className="w-full bg-emerald-600 text-white py-3 rounded-full font-medium hover:bg-emerald-700 transition"
+          whileHover={{ scale: loading ? 1 : 1.03 }}
+          whileTap={{ scale: loading ? 1 : 0.97 }}
+          disabled={loading}
+          className="w-full bg-emerald-600 text-white py-3 rounded-full font-medium
+                     hover:bg-emerald-700 transition flex justify-center items-center gap-2
+                     disabled:opacity-70"
         >
-          Confirm Booking
+          {loading ? (
+            <>
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Booking...
+            </>
+          ) : (
+            "Confirm Booking"
+          )}
         </motion.button>
       </motion.form>
     </section>
